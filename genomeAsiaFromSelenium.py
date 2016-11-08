@@ -2,14 +2,18 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
 import unittest, time, re
 
 class GenomeAsiaFromSelenium(unittest.TestCase):
     def setUp(self):
-        self.driver = webdriver.Firefox()
+        """We use Chrome here because Firefox has some issues with hover-selecting"""
+        self.driver = webdriver.Chrome("/Users/christopherLee/Downloads/chromedriver")
         self.driver.implicitly_wait(30)
         self.base_url = "http://genome.ucsc.edu/"
         self.verificationErrors = []
@@ -26,7 +30,17 @@ class GenomeAsiaFromSelenium(unittest.TestCase):
         driver.find_element_by_css_selector("div.jwGoButton").click()
         driver.find_element_by_xpath("//td[@id='td_data_knownGene']/div[2]/map/area[5]").click()
         driver.get("http://genome.ucsc.edu/cgi-bin/hgGateway?db=mm10")
-        driver.find_element_by_link_text("Mouse GRCm38/mm10").click()
+        
+       # below code taken from: 
+       # http://stackoverflow.com/questions/27934945/selenium-move-to-element-does-not-always-mouse-hover
+        men_menu = WebDriverWait(driver, 10).until(EC.visibility_of_element_located(
+        (By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/ul/li[2]")))
+        ActionChains(driver).move_to_element(men_menu).perform()
+
+        # wait for Mouse/mm10 item to appear, then click it
+        mm10= WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/ul/li[2]/ul/li[3]")))
+        mm10.click()
+        """
         driver.find_element_by_xpath("//td[@id='td_data_knownGene']/div[2]/map/area[6]").click()
         driver.get("http://genome.ucsc.edu/cgi-bin/hgGateway?db=hg19")
         driver.find_element_by_link_text("Human GRCh37/hg19").click()
@@ -77,6 +91,7 @@ class GenomeAsiaFromSelenium(unittest.TestCase):
         driver.find_element_by_name("hglft_userData").send_keys("chr21:33,031,597-33,041,570")
         driver.find_element_by_name("Submit").click()
         driver.find_element_by_link_text("View Conversions").click()
+        """
     
     def is_element_present(self, how, what):
         try: self.driver.find_element(by=how, value=what)
