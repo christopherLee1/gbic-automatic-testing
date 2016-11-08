@@ -25,30 +25,43 @@ class GenomeAsiaFromSelenium(unittest.TestCase):
         driver.find_element_by_link_text("Home").click()
         driver.find_element_by_link_text("Genomes").click()
         driver.get("http://genome.ucsc.edu/cgi-bin/cartReset")
-        driver.get("http://genome.ucsc.edu/cgi-bin/hgGateway")
+        #driver.get("http://genome.ucsc.edu/cgi-bin/hgGateway")
         Select(driver.find_element_by_id("selectAssembly")).select_by_visible_text("Feb. 2009 (GRCh37/hg19)")
         driver.find_element_by_css_selector("div.jwGoButton").click()
         driver.find_element_by_xpath("//td[@id='td_data_knownGene']/div[2]/map/area[5]").click()
         driver.get("http://genome.ucsc.edu/cgi-bin/hgGateway?db=mm10")
         
-       # below code taken from: 
-       # http://stackoverflow.com/questions/27934945/selenium-move-to-element-does-not-always-mouse-hover
+        self.driver.implicitly_wait(1000)
+        # below code taken from: 
+        # http://stackoverflow.com/questions/27934945/selenium-move-to-element-does-not-always-mouse-hover
         men_menu = WebDriverWait(driver, 10).until(EC.visibility_of_element_located(
-        (By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/ul/li[2]")))
+        (By.XPATH, "//li[@id='tools1']")))
         ActionChains(driver).move_to_element(men_menu).perform()
 
+        self.driver.implicitly_wait(1000)
         # wait for Mouse/mm10 item to appear, then click it
-        mm10= WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/ul/li[2]/ul/li[3]")))
+        mm10= WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//li[@id='tools1']/ul/li[3]")))
         mm10.click()
-        """
         driver.find_element_by_xpath("//td[@id='td_data_knownGene']/div[2]/map/area[6]").click()
+        
         driver.get("http://genome.ucsc.edu/cgi-bin/hgGateway?db=hg19")
-        driver.find_element_by_link_text("Human GRCh37/hg19").click()
-        driver.find_element_by_id("customTracksMenuLink").click()
+        # the following link does not exist? old gateway relic of problem with selenium export?
+        #driver.find_element_by_link_text("Human GRCh37/hg19").click()
+        self.driver.implicitly_wait(1000)
+        men_menu = WebDriverWait(driver,10).until(EC.visibility_of_element_located((
+        By.XPATH, "//li[@id='myData']")))
+        ActionChains(driver).move_to_element(men_menu).perform() 
+        customTrackLink = WebDriverWait(driver,10).until(EC.visibility_of_element_located((
+        By.XPATH, "//li[@id='myData']/ul/li[4]")))
+        customTrackLink.click()
+
+        #driver.find_element_by_id("customTracksMenuLink").click()
         driver.find_element_by_name("hgct_customText").clear()
         driver.find_element_by_name("hgct_customText").send_keys("http://hgwdev.cse.ucsc.edu/~brianlee/customTracks/examples.WITHOUT.FTPS.txt")
         driver.find_element_by_name("Submit").click()
-        driver.get("http://genome.ucsc.edu/cgi-bin/cartReset")
+        self.driver.implicitly_wait(1000)
+        driver.find_element_by_name("submit").click()
+        """driver.get("http://genome.ucsc.edu/cgi-bin/cartReset")
         driver.find_element_by_link_text("Genome Browser").click()
         driver.find_element_by_id("trackHubsMenuLink").click()
         driver.find_element_by_link_text("My Hubs").click()
@@ -91,8 +104,7 @@ class GenomeAsiaFromSelenium(unittest.TestCase):
         driver.find_element_by_name("hglft_userData").send_keys("chr21:33,031,597-33,041,570")
         driver.find_element_by_name("Submit").click()
         driver.find_element_by_link_text("View Conversions").click()
-        """
-    
+        """ 
     def is_element_present(self, how, what):
         try: self.driver.find_element(by=how, value=what)
         except NoSuchElementException as e: return False
