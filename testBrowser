@@ -1,0 +1,64 @@
+#!/bin/bash
+set -beEu -o pipefail
+
+# Christopher Lee
+# Runs a Selenium script against a website
+# If gbic option is passed, installs a Genome Browser mirror and
+#    runs a Selenium script against it
+
+function showHelp ()
+{
+cat << EOF
+Usage: $0 [-h] -w [hgwdev|hgwbeta|rr|genome-asia|genome-euro|gbic|gbib] -m [ubuntu|centos|all]
+
+   -h          Show this help and exit
+   -w website  Test which instance of the Genome Browser we are testing.
+               hgwdev-genome-euro test those respective sites
+               gbib uses the url http://127.0.0.1:1234
+               gbic uses the -m parameter to find url
+   -m machine  Which machine to test. By default tests all machines:
+                  Ubuntu 14/16
+                  Centos 6/7
+               If "ubuntu" or "centos" is given we test both machines of that type.
+
+Performs basic automated test of Genome Browser instance:
+   Loads hgTracks and click into hgGene for Human and Mouse.
+   Loads an hg19 custom track and checks that hgTracks loads.
+   Loads a track hub and checks that hgTracks loads.
+   Runs a blat against hg19.
+   Runs an isPCR against hg19.
+   Tests hgConvert and hgLiftOver.
+
+These tests run reasonably quickly so you should watch that they are running
+and completing correcly.
+EOF
+}
+
+# parse command line
+OPTIND=1
+while getopts "hw:m:" opt
+do 
+   case $opt in
+      h)
+         showHelp
+         exit 0
+         ;;
+      w)
+         $LOC=$OPTARG
+         ;;
+      m)
+         $MACHINE=$OPTARG
+         ;;
+      '?')
+         showHelp >&2
+         exit 1
+         ;;
+   esac
+done
+
+if [ $OPTIND -eq 1 ]; then
+   showHelp >&2
+   exit 1
+fi
+
+### MAIN ###
