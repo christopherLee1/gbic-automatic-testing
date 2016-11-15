@@ -12,20 +12,28 @@ Vagrant.configure(2) do |config|
   # 
   # first ubuntu machines
   config.vm.define "ubuntu14" do |ubuntu14|
-    ubuntu.vm.box = "ubuntu/trusty64"
+    ubuntu14.vm.box = "ubuntu/trusty64"
+    ubuntu14.vm.network "forwarded_port", guest:22, host:2223
+    ubuntu14.vm.network "forwarded_port", guest: 80, host:8080
   end
   
   config.vm.define "ubuntu16" do |ubuntu16|
-    ubuntu.vm.box = "bento/ubuntu-16.04"
+    ubuntu16.vm.box = "bento/ubuntu-16.04"
+    ubuntu16.vm.network "forwarded_port", guest:22, host:2224
+    ubuntu16.vm.network "forwarded_port", guest:80, host:8081
   end
 
   # now centos boxes
   config.vm.define "centos6" do |centos6|
     centos6.vm.box = "bento/centos6.7"
+    centos6.vm.network "forwarded_port", guest:22, host:2225
+    centos6.vm.network "forwarded_port", guest:80, host:8082
   end
   
   config.vm.define "centos7" do |centos7|
     centos7.vm.box = "centos/7"
+    centos7.vm.network "forwarded_port", guest:22, host:2226
+    centos7.vm.network "forwarded_port", guest:80, host:8083
   end
   
   # Disable automatic box update checking. If you disable this, then
@@ -37,10 +45,10 @@ Vagrant.configure(2) do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # Give each machine a different port so selenium can test each one
-  ubuntu14.vm.network "forwarded_port", guest: 80, host: 8080
-  ubuntu16.vm.network "forwarded_port", guest: 80, host: 8081
-  centos6.vm.network "forwarded_port", guest: 80, host: 8082
-  centos7.vm.network "forwarded_port", guest: 80, host: 8083
+  #config.ubuntu14.network "forwarded_port", guest: 80, host: 8080
+  #config.ubuntu16.network "forwarded_port", guest: 80, host: 8081
+  #config.centos6.network "forwarded_port", guest: 80, host: 8082
+  #config.centos7.network "forwarded_port", guest: 80, host: 8083
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
