@@ -1,5 +1,5 @@
 #!/bin/bash
-set -beEu -o pipefail
+set -bEu -o pipefail
 
 # Christopher Lee
 # "smoke tests" a gbib or gbic Genome Browser with a Selenium Script
@@ -7,13 +7,17 @@ set -beEu -o pipefail
 #    runs a Selenium script against it
 
 # Global vars
-machines = []
+MACHINES=[]
+LOC=""
 
 # runs vagrant commands to setup all or specific machines
 #function setupVMs () {}
 
 # installs Genome Browser on specific machine
-#function installBrowser () {}
+function installBrowser () 
+{
+   vagrant ssh machineName -- sudo bash browserSetup.sh -b install
+}
 
 function showHelp ()
 {
@@ -53,10 +57,10 @@ do
          exit 0
          ;;
       w)
-         $LOC=$OPTARG
+         LOC=$OPTARG
          ;;
       m)
-         $MACHINE=$OPTARG
+         MACHINE=$OPTARG
          ;;
       '?')
          showHelp >&2
@@ -74,15 +78,20 @@ fi
 
 # parse command line for errors and set machines var
 
-if [ $LOC == "gbib"] then;
+if [ $LOC == "gbib" ]; then
    # just run test against http://127.0.0.1:1234, assumes vm already running
-   python genomeTest.py "http://127.0.0.1:1234"
-else
+   curl -I "http://127.0.0.1:1234" &> /dev/null
+   if [ $? -eq 0 ]; then
+      /usr/bin/python gbibTest.py 
+   else
+      printf "GBiB not started yet. Please start your GBiB before running this test.\n"
+   fi
+#else
    # start vms and run tests
-   setupVMs
-   installBrowser
-   for machine in machines
-      do
-         python genomeTest.py url
-   done
+#   setupVMs
+#   installBrowser # vagrant ssh -- touch testfile.txt is the syntax
+#   for machine in machines
+#      do
+#         python genomeTest.py url
+#   done
 fi
