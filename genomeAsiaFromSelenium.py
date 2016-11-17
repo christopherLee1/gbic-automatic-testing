@@ -15,7 +15,7 @@ class GenomeAsiaFromSelenium(unittest.TestCase):
         """We use Chrome here because Firefox has some issues with hover-selecting"""
         self.driver = webdriver.Chrome("/Users/christopherLee/Downloads/chromedriver")
         self.driver.implicitly_wait(30)
-        self.base_url = "http://genome.ucsc.edu/"
+        self.base_url = "http://genome.ucsc.edu"
         self.verificationErrors = []
         self.accept_next_alert = True
     
