@@ -7,16 +7,48 @@ set -bEu -o pipefail
 #    runs a Selenium script against it
 
 # Global vars
-MACHINES=[]
-LOC=""
+pyloc="/Library/Frameworks/Python.framework/Versions/3.5/bin/python3.5"
+machine=""
+loc=""
+urlStub="http://127.0.0.1:808"
+urlList=()
+
+function testUrl ()
+{
+   curl $1 &> /dev/null
+}
 
 # runs vagrant commands to setup all or specific machines
-#function setupVMs () {}
+function setupVMs () 
+{
+   if [ $machine == "all" ]; then
+      #vagrant up # with no machine name this starts all machines defined in Vagrantfile
+      for num in 0 1 2 3; do
+          urlList[${num}]="${urlStub}${num}"
+      done
+      echo ${urlList[@]}
+   elif [ $machine == "ubuntu" ]; then
+      #vagrant up ubuntu14
+      #vagrant up ubuntu16
+      urlList=("${urlStub}0" "${urlStub}1")
+      echo ${urlList[@]}
+   elif [ $machine == "centos" ]; then
+      #vagrant up centos6
+      #vagrant up centos7
+      urlList=("${urlStub}2" "${urlStub}3")
+      echo ${urlList[@]}
+   fi
+}
 
 # installs Genome Browser on specific machine
 function installBrowser () 
 {
    vagrant ssh machineName -- sudo bash browserSetup.sh -b install
+}
+
+function tearDownVMs () 
+{
+   vagrant destroy
 }
 
 function showHelp ()
@@ -57,10 +89,10 @@ do
          exit 0
          ;;
       w)
-         LOC=$OPTARG
+         loc=$OPTARG
          ;;
       m)
-         MACHINE=$OPTARG
+         machine=$OPTARG
          ;;
       '?')
          showHelp >&2
@@ -77,21 +109,43 @@ fi
 ### MAIN ###
 
 # parse command line for errors and set machines var
+if [ "$loc" != "gbib" -a "$loc" != "gbic" ]; then
+   echo "Wrong -w option. Please use either \"gbib\" or \"gbic\"."
+   showHelp >&2
+   exit 1
+fi
 
-if [ $LOC == "gbib" ]; then
+if [ "$loc" == "gbic" -a "$machine" != "ubuntu" -a "$machine" != "centos" -a "$machine" != "all" ]; then
+      echo "Wrong machine name specified. Please use either \"all\" \"ubuntu\" or \"centos\"."
+      showHelp >&2
+      exit 1
+fi 
+
+if [ $loc == "gbib" ]; then
    # just run test against http://127.0.0.1:1234, assumes vm already running
-   curl -I "http://127.0.0.1:1234" &> /dev/null
+   testUrl "http://127.0.0.1:1234"
    if [ $? -eq 0 ]; then
-      /Library/Frameworks/Python.framework/Versions/3.5/bin/python3.5 gbibTest.py 
+      #$pyloc gbibTest.py "http://127.0.0.1:1234
+      echo
+      exit 0
    else
       printf "GBiB not started yet. Please start your GBiB before running this test.\n"
+      exit 1
    fi
-#else
+else
    # start vms and run tests
-#   setupVMs
-#   installBrowser # vagrant ssh -- touch testfile.txt is the syntax
-#   for machine in machines
-#      do
-#         python genomeTest.py url
-#   done
+   setupVMs
+   #installBrowser 
+   if [ $? -eq 0 ]; then # browser install didn't fail
+      for url in "${urlList[@]}"; do
+         testUrl $url
+         if [ $? -eq 0 ]; then
+            #$pyloc genomeTest.py $url
+            echo
+         else
+            echo "$url does not have a browser installed yet. Install one first"
+            exit 1
+         fi
+      done
+   fi
 fi
