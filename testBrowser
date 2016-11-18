@@ -43,7 +43,24 @@ function setupVMs ()
 # installs Genome Browser on specific machine
 function installBrowser () 
 {
-   vagrant ssh machineName -- sudo bash browserSetup.sh -b install
+# this works because browserSetup.sh is already present on the machine
+# via sync defined in the Vagrantfile
+   if [ $machine == "all" ]; then
+      machines = ( "ubuntu14" "ubuntu16" "centos6" "centos7" )
+      for mach in machines; do
+         vagrant ssh $mach -- sudo bash browserSetup.sh -b install
+      done
+   elif [ $machine == "ubuntu" ]; then
+      machines = ( "ubuntu14" "ubuntu16" )
+      for mach in machines; do
+         vagrant ssh $mach -- sudo bash browserSetup.sh -b install
+      done
+   elif [ $machine == "centos" ]; then
+      machines = ( "centos6" "centos7" )
+      for mach in machines; do
+         vagrant ssh $mach -- sudo bash browserSetup.sh -b install
+      done
+   fi
 }
 
 function tearDownVMs () 

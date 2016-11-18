@@ -69,4 +69,6 @@ Vagrant.configure(2) do |config|
   # 
   # the following line tells vagrant to run test.sh on the VM after vagrant up is ran
   # config.vm.provision :shell, path: "test.sh"
+  # get install script to vm
+  config.vm.provision :file, source: '~/gbic-automatic-testing/browserSetup.sh', destination: '/home/vagrant/browserSetup.sh'
 end
