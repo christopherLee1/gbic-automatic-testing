@@ -25,7 +25,7 @@ Vagrant.configure(2) do |config|
 
   # now centos boxes
   config.vm.define "centos6" do |centos6|
-    centos6.vm.box = "bento/centos6.7"
+    centos6.vm.box = "bento/centos-6.7"
     centos6.vm.network "forwarded_port", guest:22, host:2225
     centos6.vm.network "forwarded_port", guest:80, host:8082
   end

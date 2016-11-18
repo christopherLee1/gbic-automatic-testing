@@ -22,19 +22,19 @@ function testUrl ()
 function setupVMs () 
 {
    if [ $machine == "all" ]; then
-      #vagrant up # with no machine name this starts all machines defined in Vagrantfile
+      vagrant up # with no machine name this starts all machines defined in Vagrantfile
       for num in 0 1 2 3; do
           urlList[${num}]="${urlStub}${num}"
       done
       echo ${urlList[@]}
    elif [ $machine == "ubuntu" ]; then
-      #vagrant up ubuntu14
-      #vagrant up ubuntu16
+      vagrant up ubuntu14
+      vagrant up ubuntu16
       urlList=("${urlStub}0" "${urlStub}1")
       echo ${urlList[@]}
    elif [ $machine == "centos" ]; then
-      #vagrant up centos6
-      #vagrant up centos7
+      vagrant up centos6
+      vagrant up centos7
       urlList=("${urlStub}2" "${urlStub}3")
       echo ${urlList[@]}
    fi
@@ -46,18 +46,18 @@ function installBrowser ()
 # this works because browserSetup.sh is already present on the machine
 # via sync defined in the Vagrantfile
    if [ $machine == "all" ]; then
-      machines = ( "ubuntu14" "ubuntu16" "centos6" "centos7" )
-      for mach in machines; do
+      machines=("ubuntu14" "ubuntu16" "centos6" "centos7")
+      for mach in "${machines[@]}"; do
          vagrant ssh $mach -- sudo bash browserSetup.sh -b install
       done
    elif [ $machine == "ubuntu" ]; then
-      machines = ( "ubuntu14" "ubuntu16" )
-      for mach in machines; do
+      machines=("ubuntu14" "ubuntu16")
+      for mach in "${machines[@]}"; do
          vagrant ssh $mach -- sudo bash browserSetup.sh -b install
       done
    elif [ $machine == "centos" ]; then
-      machines = ( "centos6" "centos7" )
-      for mach in machines; do
+      machines=("centos6" "centos7")
+      for mach in "${machines[@]}"; do
          vagrant ssh $mach -- sudo bash browserSetup.sh -b install
       done
    fi
@@ -152,7 +152,7 @@ if [ $loc == "gbib" ]; then
 else
    # start vms and run tests
    setupVMs
-   #installBrowser 
+   installBrowser 
    if [ $? -eq 0 ]; then # browser install didn't fail
       for url in "${urlList[@]}"; do
          testUrl $url
