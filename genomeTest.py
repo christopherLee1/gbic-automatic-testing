@@ -8,18 +8,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
-import unittest, time, re
+import unittest, time, re, sys
 
-class GenomeAsiaFromSelenium(unittest.TestCase):
+class GenomeTest(unittest.TestCase):
     def setUp(self):
         """We use Chrome here because Firefox has some issues with hover-selecting"""
         self.driver = webdriver.Chrome("/Users/christopherLee/Downloads/chromedriver")
         self.driver.implicitly_wait(30)
-        self.base_url = "http://genome.ucsc.edu"
+        self.base_url = # need to get sys.argv[1] in here
         self.verificationErrors = []
         self.accept_next_alert = True
     
-    def test_genome_asia_from_selenium(self):
+    def test_genome_test(self):
         driver = self.driver
         driver.get(self.base_url + "/index.html")
         driver.find_element_by_link_text("Home").click()
@@ -133,4 +133,4 @@ class GenomeAsiaFromSelenium(unittest.TestCase):
         self.assertEqual([], self.verificationErrors)
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(argv=[sys.argv[1]]) # argv[1] is url like http://abc.xyz
