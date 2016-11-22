@@ -142,7 +142,7 @@ if [ $loc == "gbib" ]; then
    # just run test against http://127.0.0.1:1234, assumes vm already running
    testUrl "http://127.0.0.1:1234"
    if [ $? -eq 0 ]; then
-      #$pyloc gbibTest.py "http://127.0.0.1:1234
+      $pyloc genomeTest.py http://127.0.0.1:1234
       echo
       exit 0
    else
@@ -157,7 +157,7 @@ else
       for url in "${urlList[@]}"; do
          testUrl $url
          if [ $? -eq 0 ]; then
-            #$pyloc genomeTest.py $url
+            $pyloc genomeTest.py $url
             echo
          else
             echo "$url does not have a browser installed yet. Install one first"
