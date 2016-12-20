@@ -68,6 +68,17 @@ function tearDownVMs ()
    vagrant destroy
 }
 
+function goOffline ()
+{
+   vagrant ssh $mach -- sudo bash browserSetup.sh -o
+}
+
+function testOffline ()
+{
+   # put in some offline specific testing, like making sure nothing loads when no assembly mirrored
+   # after mirroring a small assembly, click into hgTracks
+}
+
 function showHelp ()
 {
    cat << EOF
