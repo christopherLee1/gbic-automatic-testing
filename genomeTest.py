@@ -46,7 +46,7 @@ class GenomeTest(unittest.TestCase):
             self.hover_over_menu(driver, "//li[@id='myData']", "//li[@id='myData']/ul/li[4]")
         
         driver.find_element_by_name("hgct_customText").clear()
-        driver.find_element_by_name("hgct_customText").send_keys("http://hgwdev.cse.ucsc.edu/~brianlee/customTracks/examples.WITHOUT.FTPS.txt")
+        driver.find_element_by_name("hgct_customText").send_keys("http://hgwdev.cse.ucsc.edu/~chmalee/examples.WITHOUT.FTPS.txt")
         driver.find_element_by_name("Submit").click()
         self.driver.implicitly_wait(1000)
         driver.find_element_by_name("submit").click()
