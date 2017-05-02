@@ -14,13 +14,14 @@ class GenomeTest(unittest.TestCase):
     def __init__(self, testname, host):
         super(GenomeTest, self).__init__(testname)
         self.base_url = host
-        self.driver = webdriver.Chrome("/Users/christopherLee/Downloads/chromedriver")
+        opts = webdriver.ChromeOptions()
+        opts.add_argument("--window-size=1280,777")
+        self.driver = webdriver.Chrome("/Users/christopherLee/Downloads/chromedriver", chrome_options=opts)
         self.driver.implicitly_wait(30)
         self.verificationErrors = []
         self.accept_next_alert = True
     
     def test_genome_test(self):
-        #print("url is %s\n" % self.host)
         driver = self.driver
         driver.get(self.base_url + "/index.html")
         driver.find_element_by_link_text("Home").click()
