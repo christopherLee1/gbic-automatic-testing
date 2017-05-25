@@ -2,3 +2,4 @@
 browserSetup.sh
 gbibTest.py
 .vagrant
+.gb*

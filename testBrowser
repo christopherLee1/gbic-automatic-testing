@@ -65,12 +65,17 @@ function installBrowser ()
 
 function tearDownVMs () 
 {
-   vagrant destroy
+   vagrant destroy -f 
 }
 
-function goOffline ()
+function mirrorOffline ()
 {
    vagrant ssh $mach -- sudo bash browserSetup.sh -o
+}
+
+function gbibOffline()
+{
+   sshpass -f .gbibpassword ssh browser@localhost -p 1235 'bash -ic gbibOffline' 2>&1 | grep -v "bash"
 }
 
 #function testOffline ()
@@ -150,15 +155,30 @@ if [ "$loc" == "gbic" -a "$machine" != "ubuntu" -a "$machine" != "centos" -a "$m
 fi 
 
 if [ $loc == "gbib" ]; then
-   # just run test against http://127.0.0.1:1234, assumes vm already running
+   # gbib already on
    testUrl "http://127.0.0.1:1234"
    if [ $? -eq 0 ]; then
       $pyloc genomeTest.py http://127.0.0.1:1234
       echo
       exit 0
    else
-      printf "GBiB not started yet. Please start your GBiB before running this test.\n"
-      exit 1
+      # turn the gbib on for testing, need sleep while gbib gets up and running
+      VBoxManage startvm browserbox --type=headless
+      while true; do
+         # just wait for gbib to get running, no need for sleep commands
+         testUrl http://127.0.0.1:1234
+         if [ $? -eq 0 ]; then
+            $pyloc genomeTest.py http://127.0.0.1:1234
+            VBoxManage controlvm browserbox poweroff
+            break
+         fi
+      done
+      # shut down vm just any case something bad happened in Selenium script and we need to ^C
+      if [[ $(VBoxManage list runningvms) =~ browserbox ]]; then
+         echo "shutting off vm because of kill"
+         VBoxManage controlvm browserbox poweroff
+      fi
+      exit 0
    fi
 else
    # start vms and run tests
