@@ -89,15 +89,15 @@ function gbibOffline ()
    sshpass -f .gbibpassword ssh browser@localhost -p 1235 'bash -ic gbibOffline' 2>&1 | grep -v "bash"
 }
 
-function testGbibOffline ()
-{
+#function testGbibOffline ()
+#{
    # test mirroring a track
-}
+#}
 
 function shutDownGbib ()
 {
    if [[ $(VBoxManage list runningvms) =~ browserbox ]]; then
-      echo "shutting off vm because of ctrl-c"
+      echo "shutting off gbib because of ctrl-c"
       VBoxManage controlvm browserbox poweroff
       exit 1
    fi
@@ -177,27 +177,35 @@ if [ $loc == "gbib" ]; then
    # gbib already on for some other purpose
    testUrl "http://127.0.0.1:1234"
    if [ $? -eq 0 ]; then
+      echo "gbib already running, starting tests"
       $pyloc genomeTest.py http://127.0.0.1:1234
-      echo
-      exit 0
    else
       trap shutDownGbib SIGINT
-      # gbib doesn't exist yet 
-      VBoxManage registervm $HOME/Downloads/gbib/browserbox.vbox
-      VBoxManage sharedfolder add "browserbox" --name "testHub" --hostpath "`pwd`/testHub" --readonly --automount
-      VBoxManage startvm browserbox --type=headless
+      # gbib is powered off
+      if [[ $(VBoxManage list vms) =~ browserbox ]]; then
+         echo "starting up gbib"
+         VBoxManage guestproperty set browserbox gbibAutoUpdateOff yes 
+         VBoxManage startvm browserbox --type=headless
+      else # fresh gbib download
+         echo "Test of newly downloaded gbib"
+         VBoxManage registervm $HOME/Downloads/gbib/browserbox.vbox
+         VBoxManage sharedfolder add "browserbox" --name "testHub" --hostpath "`pwd`/testHub" --readonly --automount
+         VBoxManage guestproperty set browserbox gbibAutoUpdateOff yes 
+         VBoxManage startvm browserbox --type=headless
+      fi
       while true; do
          # just wait for gbib to get running, no need for sleep commands
          testUrl http://127.0.0.1:1234
          if [ $? -eq 0 ]; then
             $pyloc genomeTest.py http://127.0.0.1:1234
+            # offline testing stub
             VBoxManage controlvm browserbox poweroff
             break
          fi
       done
-      exit 0
    fi
-else [ $loc == "gbic" ]; then # currently for testing purposes
+   exit 0
+elif [ $loc == "gbic" ]; then # currently for testing purposes
    trap tearDownVMs SIGINT
    setupVMs
    installBrowser 
@@ -206,6 +214,7 @@ else [ $loc == "gbic" ]; then # currently for testing purposes
          testUrl $url
          if [ $? -eq 0 ]; then
             $pyloc genomeTest.py $url
+            # offline testing stub
             echo
          else
             echo "$url does not have a browser installed yet. Install one first"
