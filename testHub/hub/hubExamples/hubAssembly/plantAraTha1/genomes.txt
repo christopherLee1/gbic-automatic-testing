@@ -1,0 +1,12 @@
+genome araTha1
+trackDb araTha1/trackDb.txt
+groups groups.txt
+description Feb. 2011 Thale cress
+twoBitPath araTha1/araTha1.2bit
+organism Arabidopsis thaliana
+defaultPos chr1:1000000-2000000
+orderKey 4700
+scientificName Arabidopsis thaliana
+htmlPath araTha1/description.html
+#blat localhost 17779
+#transBlat localhost 17777

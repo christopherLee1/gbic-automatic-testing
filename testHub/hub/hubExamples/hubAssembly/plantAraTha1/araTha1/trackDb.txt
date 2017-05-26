@@ -1,0 +1,45 @@
+track assembly_
+longLabel Assembly 
+shortLabel Assembly 
+priority 10
+visibility pack
+colorByStrand 150,100,30 230,170,40
+color 150,100,30
+altColor 230,170,40
+bigDataUrl bbi/araTha1.assembly.bb
+type bigBed 6
+group map
+html assembly
+
+track gap_
+longLabel Gap 
+shortLabel Gap 
+priority 11
+visibility dense
+color 0,0,0 
+bigDataUrl bbi/araTha1.gap.bb
+type bigBed 4
+group map
+html gap
+
+track genscan_
+shortLabel Genscan Genes
+longLabel Genscan Gene Predictions
+group genes
+priority 50
+visibility pack
+color 170,100,0
+type bigBed 12 .
+bigDataUrl bbi/araTha1.genscan.bb
+html genscan
+
+
+track simpleRepeat_
+shortLabel Simple Repeats
+longLabel Simple Tandem Repeats by TRF
+group varRep
+priority 149.3
+visibility dense
+type bigBed 4 +
+bigDataUrl bbi/araTha1.simpleRepeat.bb
+html simpleRepeat

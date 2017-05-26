@@ -1,0 +1,6 @@
+hub plantAraTha1
+shortLabel Plant araTha1
+longLabel Plant araTha1 Hub
+genomesFile genomes.txt
+email genome-www@soe.ucsc.edu
+descriptionUrl plants.html

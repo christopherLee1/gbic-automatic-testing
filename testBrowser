@@ -9,6 +9,7 @@ set -bEu -o pipefail
 # Global vars
 pyloc="/Library/Frameworks/Python.framework/Versions/3.5/bin/python3.5"
 machine=""
+machines=""
 loc=""
 urlStub="http://127.0.0.1:808"
 urlList=()
@@ -73,16 +74,34 @@ function mirrorOffline ()
    vagrant ssh $mach -- sudo bash browserSetup.sh -o
 }
 
-function gbibOffline()
+function testOfflineMirror ()
+{
+   # put in some offline specific testing, like making sure nothing loads when no assembly mirrored
+   # after mirroring a small assembly, click into hgTracks
+   # This test will take significantly longer since an assembly will be mirrored
+   echo "Testing an offline mirror. These tests can take a while"
+   echo ${machines[@]}
+   exit 0
+}
+
+function gbibOffline ()
 {
    sshpass -f .gbibpassword ssh browser@localhost -p 1235 'bash -ic gbibOffline' 2>&1 | grep -v "bash"
 }
 
-#function testOffline ()
-#{
-   # put in some offline specific testing, like making sure nothing loads when no assembly mirrored
-   # after mirroring a small assembly, click into hgTracks
-#}
+function testGbibOffline ()
+{
+   # test mirroring a track
+}
+
+function shutDownGbib ()
+{
+   if [[ $(VBoxManage list runningvms) =~ browserbox ]]; then
+      echo "shutting off vm because of ctrl-c"
+      VBoxManage controlvm browserbox poweroff
+      exit 1
+   fi
+}
 
 function showHelp ()
 {
@@ -155,14 +174,17 @@ if [ "$loc" == "gbic" -a "$machine" != "ubuntu" -a "$machine" != "centos" -a "$m
 fi 
 
 if [ $loc == "gbib" ]; then
-   # gbib already on
+   # gbib already on for some other purpose
    testUrl "http://127.0.0.1:1234"
    if [ $? -eq 0 ]; then
       $pyloc genomeTest.py http://127.0.0.1:1234
       echo
       exit 0
    else
-      # turn the gbib on for testing, need sleep while gbib gets up and running
+      trap shutDownGbib SIGINT
+      # gbib doesn't exist yet 
+      VBoxManage registervm $HOME/Downloads/gbib/browserbox.vbox
+      VBoxManage sharedfolder add "browserbox" --name "testHub" --hostpath "`pwd`/testHub" --readonly --automount
       VBoxManage startvm browserbox --type=headless
       while true; do
          # just wait for gbib to get running, no need for sleep commands
@@ -173,15 +195,10 @@ if [ $loc == "gbib" ]; then
             break
          fi
       done
-      # shut down vm just any case something bad happened in Selenium script and we need to ^C
-      if [[ $(VBoxManage list runningvms) =~ browserbox ]]; then
-         echo "shutting off vm because of kill"
-         VBoxManage controlvm browserbox poweroff
-      fi
       exit 0
    fi
-else
-   # start vms and run tests
+else [ $loc == "gbic" ]; then # currently for testing purposes
+   trap tearDownVMs SIGINT
    setupVMs
    installBrowser 
    if [ $? -eq 0 ]; then # browser install didn't fail
@@ -195,5 +212,8 @@ else
             exit 1
          fi
       done
+   else
+      echo "install failed. login to VM and run install with bash -x to see what happened"
+      exit 1
    fi
 fi
