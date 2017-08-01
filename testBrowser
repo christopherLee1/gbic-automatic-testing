@@ -89,10 +89,40 @@ function gbibOffline ()
    sshpass -f .gbibpassword ssh browser@localhost -p 1235 'bash -ic gbibOffline' 2>&1 | grep -v "bash"
 }
 
-#function testGbibOffline ()
-#{
+function gbibOnline ()
+{
+   sshpass -f .gbibpassword ssh browser@localhost -p 1235 'bash -ic gbibOnline' 2>&1 | grep -v "bash"
+}
+
+function testOfflineGbib ()
+{
    # test mirroring a track
-#}
+   # run a show tables hg19 and look for altLocations to be null
+   # go to hgTracks and make sure no altLocations track
+   # use hgMirror to download altLocations
+   # altLocations should show up for hgTracks chr17
+   tbl=`sshpass -f .gbibpassword ssh browser@localhost -p 1235 'mysql -Ne "show tables \
+      like \"altLocations\"" hg19' 2>&1`
+   if [[ "$tbl" =~ altLocations ]]; then
+      # altLocations already exists abort
+      echo "this gbib already contains downloaded tables, try again"
+      exit 1
+   else
+      $pyloc genomeTest.tmp.py http://127.0.0.1:1234 offline
+      if [ $? -eq 0 ]; then
+         echo "selenium offline tests ran correctly"
+         tbl=`sshpass -f .gbibpassword ssh browser@localhost -p 1235 'mysql -Ne "show tables \
+            like \"altLocations\"" hg19' 2>&1`
+         if [[ "$tbl" =~ altLocations ]]; then
+            echo "altLocations table successfully downloaded, removing so test can be rerun if needed"
+            sshpass -f .gbibpassword ssh browser@localhost -p 1235 'mysql -e "drop table altLocations" hg19' 2>&1
+         fi
+      else
+         echo "selenium offline test didn't run successfully"      
+         exit 1
+      fi
+   fi
+}
 
 function shutDownGbib ()
 {
@@ -178,7 +208,11 @@ if [ $loc == "gbib" ]; then
    testUrl "http://127.0.0.1:1234"
    if [ $? -eq 0 ]; then
       echo "gbib already running, starting tests"
-      $pyloc genomeTest.py http://127.0.0.1:1234
+      #$pyloc genomeTest.tmp.py http://127.0.0.1:1234
+      gbibOffline
+      testOfflineGbib
+      gbibOnline
+      VBoxManage controlvm browserbox poweroff
    else
       trap shutDownGbib SIGINT
       # gbib is powered off
@@ -188,17 +222,26 @@ if [ $loc == "gbib" ]; then
          VBoxManage startvm browserbox --type=headless
       else # fresh gbib download
          echo "Test of newly downloaded gbib"
-         VBoxManage registervm $HOME/Downloads/gbib/browserbox.vbox
+         wget http://hgwdev.soe.ucsc.edu/gbib/gbib.zip 
+         gzip -d `pwd`/gbib.zip
+         VBoxManage registervm `pwd`/gbib/browserbox.vbox
          VBoxManage sharedfolder add "browserbox" --name "testHub" --hostpath "`pwd`/testHub" --readonly --automount
          VBoxManage guestproperty set browserbox gbibAutoUpdateOff yes 
          VBoxManage startvm browserbox --type=headless
       fi
       while true; do
-         # just wait for gbib to get running, no need for sleep commands
+         # just wait for gbib to get running
          testUrl http://127.0.0.1:1234
          if [ $? -eq 0 ]; then
-            $pyloc genomeTest.py http://127.0.0.1:1234
+            $pyloc genomeTest.tmp.py http://127.0.0.1:1234
             # offline testing stub
+            # run a show tables hg19 and look for altLocations to be null
+            # go to hgTracks and make sure no altLocations track
+            # use hgMirror to download altLocations
+            # altLocations should show up for hgTracks chr17
+            gbibOffline
+            testOfflineGbib
+            gbibOnline
             VBoxManage controlvm browserbox poweroff
             break
          fi
