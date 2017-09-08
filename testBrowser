@@ -108,7 +108,7 @@ function testOfflineGbib ()
       echo "this gbib already contains downloaded tables, try again"
       exit 1
    else
-      $pyloc genomeTest.tmp.py http://127.0.0.1:1234 offline
+      $pyloc genomeTest.py http://127.0.0.1:1234 offline
       if [ $? -eq 0 ]; then
          echo "selenium offline tests ran correctly"
          tbl=`sshpass -f .gbibpassword ssh browser@localhost -p 1235 'mysql -Ne "show tables \
@@ -208,13 +208,15 @@ if [ $loc == "gbib" ]; then
    testUrl "http://127.0.0.1:1234"
    if [ $? -eq 0 ]; then
       echo "gbib already running, starting tests"
-      #$pyloc genomeTest.tmp.py http://127.0.0.1:1234
+      # first make sure we can run online test:
+      gbibOnline
+      $pyloc genomeTest.py http://127.0.0.1:1234
       gbibOffline
       testOfflineGbib
       gbibOnline
       VBoxManage controlvm browserbox poweroff
    else
-      trap shutDownGbib SIGINT
+      trap "break" shutDownGbib SIGINT
       # gbib is powered off
       if [[ $(VBoxManage list vms) =~ browserbox ]]; then
          echo "starting up gbib"
@@ -223,7 +225,7 @@ if [ $loc == "gbib" ]; then
       else # fresh gbib download
          echo "Test of newly downloaded gbib"
          wget http://hgwdev.soe.ucsc.edu/gbib/gbib.zip 
-         gzip -d `pwd`/gbib.zip
+         ditto -xk `pwd`/gbib.zip gbib
          VBoxManage registervm `pwd`/gbib/browserbox.vbox
          VBoxManage sharedfolder add "browserbox" --name "testHub" --hostpath "`pwd`/testHub" --readonly --automount
          VBoxManage guestproperty set browserbox gbibAutoUpdateOff yes 
@@ -233,7 +235,7 @@ if [ $loc == "gbib" ]; then
          # just wait for gbib to get running
          testUrl http://127.0.0.1:1234
          if [ $? -eq 0 ]; then
-            $pyloc genomeTest.tmp.py http://127.0.0.1:1234
+            $pyloc genomeTest.py http://127.0.0.1:1234
             # offline testing stub
             # run a show tables hg19 and look for altLocations to be null
             # go to hgTracks and make sure no altLocations track

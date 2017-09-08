@@ -18,7 +18,7 @@ class GenomeTest(unittest.TestCase):
         opts = webdriver.ChromeOptions()
         opts.add_argument("--window-size=1280,777")
         self.driver = webdriver.Chrome("/Users/christopherLee/Downloads/chromedriver", chrome_options=opts)
-        self.implicitly_wait(1000)
+        self.driver.implicitly_wait(30)
         self.verificationErrors = []
         self.accept_next_alert = True
     
