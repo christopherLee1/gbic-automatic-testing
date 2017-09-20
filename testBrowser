@@ -214,7 +214,8 @@ if [ $loc == "gbib" ]; then
       gbibOffline
       testOfflineGbib
       gbibOnline
-      VBoxManage controlvm browserbox poweroff
+      # if gbib was already on we shouldn't turn it off
+      #VBoxManage controlvm browserbox poweroff
    else
       trap "break" shutDownGbib SIGINT
       # gbib is powered off
