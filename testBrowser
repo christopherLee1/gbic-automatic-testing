@@ -86,12 +86,12 @@ function testOfflineMirror ()
 
 function gbibOffline ()
 {
-   sshpass -f .gbibpassword ssh browser@localhost -p 1235 'bash -ic gbibOffline' 2>&1 | grep -v "bash"
+   sshpass -f .gbibpassword ssh browser@localhost -p 1235 "bash -ic gbibOffline" 2>&1 | grep -v "bash"
 }
 
 function gbibOnline ()
 {
-   sshpass -f .gbibpassword ssh browser@localhost -p 1235 'bash -ic gbibOnline' 2>&1 | grep -v "bash"
+   sshpass -f .gbibpassword ssh browser@localhost -p 1235 "bash -ic gbibOnline" 2>&1 | grep -v "bash"
 }
 
 function testOfflineGbib ()
@@ -217,7 +217,7 @@ if [ $loc == "gbib" ]; then
       # if gbib was already on we shouldn't turn it off
       #VBoxManage controlvm browserbox poweroff
    else
-      trap "break" shutDownGbib SIGINT
+      trap shutDownGbib SIGINT
       # gbib is powered off
       if [[ $(VBoxManage list vms) =~ browserbox ]]; then
          echo "starting up gbib"
