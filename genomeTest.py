@@ -87,10 +87,9 @@ class GenomeTest(unittest.TestCase):
             self.hover_over_menu(driver, "//li[@id='tools3']", "//li[@id='tools3']/ul/li[9]")
         driver.find_element_by_name("hglft_userData").clear()
         driver.find_element_by_name("hglft_userData").send_keys("chr21:33,031,597-33,041,570")
-        
-        # hgHubConnect - still not quite ready yet. Exceptions are not quite 
-        # being handled correctly
-        '''self.cart_reset(driver)
+
+        # hgHubConnect
+        self.cart_reset(driver)
         self.hover_over_menu(driver, "//li[@id='myData']", "//li[@id='myData']/ul/li[3]")
         while True:
             hubId = random.randint(0,55) # random td element, off by one between xpath and connectButton
@@ -104,12 +103,12 @@ class GenomeTest(unittest.TestCase):
                 break
         driver.find_element_by_css_selector("div.jwGoButton").click()
         try:
-            elem = driver.find_element_by_xpath('//select[starts-with(@name, "xhub_")]') # hub didn't load
+            elem = driver.find_element_by_xpath('//select[starts-with(@name, "hub_")]') # hub didn't load
             if elem:
                 print("hub loaded correctly")
         except NoSuchElementException:
              print("hub did not load successfully")
-             sys.exit()'''
+             sys.exit()
          
     def test_offline_genome_test(self):
         driver = self.driver
