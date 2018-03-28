@@ -16,6 +16,7 @@ class GenomeTest(unittest.TestCase):
         self.base_url = host
         opts = webdriver.ChromeOptions()
         opts.add_argument("--window-size=1280,777")
+        opts.add_argument("--disable-device-discovery-notifications")
         self.driver = webdriver.Chrome("/Users/christopherLee/Downloads/chromedriver", chrome_options=opts)
         self.driver.implicitly_wait(30)
         self.verificationErrors = []
@@ -27,8 +28,11 @@ class GenomeTest(unittest.TestCase):
         
         driver.find_element_by_link_text("Home").click()
         driver.find_element_by_link_text("Genomes").click()
-        if self.base_url.find("-") != -1: # genome-euro and genome-asia
-            driver.find_element_by_xpath("//div[3]/ul/li[3]/a").click()
+        try:
+            if self.base_url.find("-") != -1: # genome-euro and genome-asia
+                driver.find_element_by_xpath("//div[3]/ul/li[3]/a").click()
+        except NoSuchElementException:
+            pass
         self.cart_reset(driver)
         Select(driver.find_element_by_id("selectAssembly")).select_by_value("hg19")
         driver.find_element_by_css_selector("div.jwGoButton").click()
@@ -91,6 +95,8 @@ class GenomeTest(unittest.TestCase):
         # hgHubConnect
         self.cart_reset(driver)
         self.hover_over_menu(driver, "//li[@id='myData']", "//li[@id='myData']/ul/li[3]")
+        #for xpath in ["//table[@class='hubList']/tbody/tr["+str(hubId+1)+"/td/[3]" for hub in random.randint(0,55)]
+    
         while True:
             hubId = random.randint(0,55) # random td element, off by one between xpath and connectButton
             xpath = "//table[@class='hubList']/tbody/tr[" + str(hubId+1) + "]"
